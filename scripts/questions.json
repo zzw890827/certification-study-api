@@ -1,0 +1,50 @@
+[
+  {
+    "text": "A company makes forecasts each quarter to decide how to optimize operations to meet expected demand. The company uses ML models to make these forecasts. An AI practitioner is writing a report about the trained ML models to provide transparency and explainability to company stakeholders. What should the AI practitioner include in the report to meet the transparency and explainability requirements?",
+    "choices": ["Code for model training","Partial dependence plots (PDPs)","Sample data for training","Model convergence tables"],
+    "multiple": false,
+    "correctAnswer": ["B"],
+    "explanations": [
+      "While useful for reproducibility and auditing, raw code does not directly help non-technical stakeholders understand model behavior.",
+      "Partial dependence plots (PDPs) are a popular tool for model explainability. They show the relationship between a subset of features (typically one or two) and the predicted outcome, averaging out the effects of all other features. This helps non-technical stakeholders understand how a model behaves.",
+      "This is useful for context but doesn’t directly help explain model decisions. It can also raise privacy or compliance concerns.",
+      "SThese show if the model training has mathematically converged, which is important for model quality, but not for interpretability."
+    ]
+  },
+  {
+    "text": "A law firm wants to build an AI application by using large language models (LLMs). The application will read legal documents and extract key points from the documents. Which solution meets these requirements?",
+    "choices": ["Build an automatic named entity recognition system.","Create a recommendation engine.","Develop a summarization chatbot.", "Develop a multi-language translation system."],
+    "multiple": false,
+    "correctAnswer": ["B"],
+    "explanations": [
+      "This identifies entities like names, dates, or organizations, but it does not extract or summarize key points in a document.",
+      "Recommendation systems suggest items or content — not suited for document summarization.",
+      "The goal is to read legal documents and extract key points — this is fundamentally a summarization task, and LLMs are well-suited for it. Understand and process large legal documents. Extract and present key information or summaries in a human-friendly format. Potentially allow users to ask follow-up questions about the summarized content. This meets the requirement of extracting key points in a way that supports user interaction and clarity.",
+      "Recommendation systems suggest items or content — not suited for document summarization."
+    ]
+  },
+  {
+    "text": "A company wants to classify human genes into 20 categories based on gene characteristics. The company needs an ML algorithm to document how the inner mechanism of the model affects the output. Which ML algorithm meets these requirements?",
+    "choices": ["Decision trees","Linear regression","Logistic regression", "Neural networks"],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "Classification of genes into 20 categories → This is a multi-class classification problem. Transparency into how the model makes decisions → The model must be interpretable, meaning its inner mechanisms (feature impact and decision logic) can be documented and understood. They provide a clear, hierarchical structure showing how decisions are made. Each split in the tree corresponds to a specific rule based on input features. You can trace exactly how a prediction is made, step by step. Trees are naturally interpretable and often used when transparency is a requirement.",
+      "Not suitable — it’s for regression (predicting continuous values), not classification.",
+      "It’s suitable for classification and interpretable, but: 1. Standard logistic regression handles binary classification. 2. Multinomial logistic regression can be used for 20 classes, but it’s less intuitive than decision trees when documenting decision logic.",
+      "Not suitable — they are black-box models. While powerful, they require tools like SHAP or LIME for post-hoc explanation, which doesn’t provide native interpretability."
+    ]
+  },
+  {
+    "text": "A company has built an image classification model to predict plant diseases from photos of plant leaves. The company wants to evaluate how many images the model classified correctly. Which evaluation metric should the company use to measure the model's performance?",
+    "choices": ["R-squared score","Accuracy","Root mean squared error (RMSE)", "Learning rate"],
+    "multiple": false,
+    "correctAnswer": ["B"],
+    "explanations": [
+      "Used for regression problems, not classification.",
+      "The company is working on an image classification problem — predicting discrete labels (types of plant diseases) from images. Since the goal is to evaluate how many images were correctly classified, the most straightforward and appropriate evaluation metric is: Accuracy = (Number of correct predictions) / (Total number of predictions)",
+      "Also for regression tasks — measures error between predicted and actual continuous values.",
+      "This is a hyperparameter used during training, not an evaluation metric."
+    ]
+  }
+]
