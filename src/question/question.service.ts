@@ -22,6 +22,12 @@ export class QuestionService {
     }
     return docs[0];
   }
+
+  // 返回题目总数
+  async count(): Promise<number> {
+    return this.questionModel.countDocuments().exec();
+  }
+
   async findAll(): Promise<Question[]> {
     return this.questionModel.find().exec();
   }
