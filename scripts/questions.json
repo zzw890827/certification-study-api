@@ -46,5 +46,118 @@
       "Also for regression tasks — measures error between predicted and actual continuous values.",
       "This is a hyperparameter used during training, not an evaluation metric."
     ]
+  },
+  {
+    "text": "A company is using a pre-trained large language model (LLM) to build a chatbot for product recommendations. The company needs the LLM outputs to be short and written in a specific language. Which solution will align the LLM response quality with the company's expectations?",
+    "choices": ["Adjust the prompt.","Choose an LLM of a different size.","Increase the temperature.", "Increase the Top K value."],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "To control the length and language of the LLM's outputs, prompt engineering is the most direct and effective approach. By clearly specifying in the prompt what the chatbot should do (e.g., Respond in short sentences in Japanese), the LLM can be guided to produce responses that align with the company’s expectations.",
+      "Choose an LLM of a different size: May impact performance or capability, but does not directly address output length or language.",
+      "Increase the temperature: Affects randomness/creativity, not control over length or language.",
+      "Increase the Top K value: Also affects sampling diversity, not output structure or language control."
+    ]
+  },
+  {
+    "text": "A company uses Amazon SageMaker for its ML pipeline in a production environment. The company has large input data sizes up to 1 GB and processing times up to 1 hour. The company needs near real-time latency. Which SageMaker inference option meets these requirements?",
+    "choices": ["Real-time inference", "Serverless inference", "Asynchronous inference", "Batch transform"],
+    "multiple": false,
+    "correctAnswer": ["C"],
+    "explanations": [
+      "Real-time inference: Designed for low-latency, short-duration requests. Not suitable for large data or long processing times.",
+      "Serverless inference: Good for sporadic, low-latency workloads, but it has payload size and timeout limits that don't suit 1 GB/1-hour jobs.",
+      "The company's scenario involves: Large input data sizes (up to 1 GB); Long processing times (up to 1 hour); Need for near real-time latency (not immediate, but faster than batch). Asynchronous inference is specifically designed for: Handling large payloads (up to several GBs); Supporting long-running inference requests (up to 1 hour); Providing near real-time responses through callbacks or polling",
+      "Batch transform: Suitable for offline batch jobs, not near real-time inference."
+    ]
+  },
+  {
+    "text": "A company is using domain-specific models. The company wants to avoid creating new models from the beginning. The company instead wants to adapt pre-trained models to create models for new, related tasks. Which ML strategy meets these requirements?",
+    "choices": ["Increase the number of epochs.", "Use transfer learning.", "Decrease the number of epochs.", "Use unsupervised learning."],
+    "multiple": false,
+    "correctAnswer": ["B"],
+    "explanations": [
+      "Increase the number of epochs: A training parameter, not a strategy for adapting existing models.",
+      "Transfer learning allows a company to: Leverage pre-trained models (often trained on large, general datasets), And adapt them to new, related tasks using smaller, domain-specific datasets. This avoids the need to train a model from scratch, saving both time and computational resources while still achieving good performance on the new task.",
+      "Decrease the number of epochs: Also just a tuning parameter, not relevant to reusing models.",
+      "Use unsupervised learning: Doesn’t fit the goal of adapting pre-trained models to related supervised tasks."
+    ]
+  },
+  {
+    "text": "A company is building a solution to generate images for protective eyewear. The solution must have high accuracy and must minimize the risk of incorrect annotations. Which solution will meet these requirements?",
+    "choices": ["Human-in-the-loop validation by using Amazon SageMaker Ground Truth Plus", "Data augmentation by using an Amazon Bedrock knowledge base", "Image recognition by using Amazon Rekognition", "Data summarization by using Amazon QuickSight Q"],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "When high accuracy and minimizing incorrect annotations are essential—especially for image data used in model training—the most reliable approach is to incorporate human-in-the-loop (HITL) validation. Amazon SageMaker Ground Truth Plus:Provides high-quality labeled data by integrating human review where needed. Minimizes annotation errors by combining machine learning with professional human labelers. Is ideal for critical applications like protective equipment where safety and precision are key.",
+      "Data augmentation by using Amazon Bedrock knowledge base: Bedrock is for LLMs, not image data or labeling.",
+      "Image recognition by using Amazon Rekognition: Good for predefined object detection, but not suited for custom, image generation or labeling.",
+      "Data summarization by using Amazon QuickSight Q: Used for business intelligence, not image annotation or model training."
+    ]
+  },
+  {
+    "text": "A company wants to create a chatbot by using a foundation model (FM) on Amazon Bedrock. The FM needs to access encrypted data that is stored in an Amazon S3 bucket. The data is encrypted with Amazon S3 managed keys (SSE-S3). The FM encounters a failure when attempting to access the S3 bucket data. Which solution will meet these requirements?",
+    "choices": [
+      "Ensure that the role that Amazon Bedrock assumes has permission to decrypt data with the correct encryption key.",
+      "Set the access permissions for the S3 buckets to allow public access to enable access over the internet.",
+      "Use prompt engineering techniques to tell the model to look for information in Amazon S3.",
+      "Ensure that the S3 data does not contain sensitive information."
+    ],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "Amazon Bedrock requires proper IAM permissions to access and decrypt S3 data. Even though the data is encrypted with Amazon S3 managed keys (SSE-S3), Bedrock must assume a role that has the necessary permissions (such as 's3:GetObject') for the bucket and object. Since SSE-S3 does not require explicit key permissions (as AWS manages the keys), ensuring that the role has S3 access is essential to resolve the failure.",
+      "Setting S3 buckets to allow public access is a serious security risk and goes against best practices, especially for encrypted and sensitive data. Public access is not required for Bedrock or other AWS services that use IAM roles for secure access.",
+      "Prompt engineering influences the behavior of the foundation model, not its access to external data. It cannot grant access or resolve permission issues related to S3 buckets.",
+      "Ensuring data is not sensitive is a general data management concern, but it does not address the access failure. The failure is due to permission issues, not data sensitivity."
+    ]
+  },
+  {
+    "text": "A company wants to use language models to create an application for inference on edge devices. The inference must have the lowest latency possible. Which solution will meet these requirements?",
+    "choices": [
+      "Deploy optimized small language models (SLMs) on edge devices.",
+      "Deploy optimized large language models (LLMs) on edge devices.",
+      "Incorporate a centralized small language model (SLM) API for asynchronous communication with edge devices.",
+      "Incorporate a centralized large language model (LLM) API for asynchronous communication with edge devices."
+    ],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "Deploying optimized small language models (SLMs) directly on edge devices ensures that inference happens locally, eliminating the need for network communication and thus achieving the **lowest possible latency**. SLMs are lightweight enough to run efficiently on edge hardware.",
+      "Large language models (LLMs) require significant computational resources and are not typically suitable for deployment on edge devices due to memory and processing constraints, resulting in poor performance and higher latency.",
+      "Using a centralized SLM API introduces network latency due to remote communication, which contradicts the requirement for the **lowest possible latency**.",
+      "This approach combines both drawbacks — centralized processing and large model size — leading to **higher latency** and resource limitations, making it the worst option for edge deployment."
+    ]
+  },
+  {
+    "text": "A company wants to build an ML model by using Amazon SageMaker. The company needs to share and manage variables for model development across multiple teams. Which SageMaker feature meets these requirements?",
+    "choices": [
+      "Amazon SageMaker Feature Store", "Amazon SageMaker Data Wrangler", "Amazon SageMaker Clarify", "Amazon SageMaker Model Cards"
+    ],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "Amazon SageMaker Feature Store is specifically designed to store, share, and manage features (i.e., variables) for machine learning across different teams and models. It supports feature consistency, reuse, and governance, making it ideal for collaborative model development.",
+      "SageMaker Data Wrangler is used for data preparation and transformation, not for sharing and managing features across teams.",
+      "SageMaker Clarify is used to detect bias and explain model predictions, not for managing shared variables or features.",
+      "SageMaker Model Cards are used for documenting and sharing model metadata, not for sharing or managing features or variables used during development."
+    ]
+  },
+  {
+    "text": "A company wants to use generative AI to increase developer productivity and software development. The company wants to use Amazon Q Developer. What can Amazon Q Developer do to help the company meet these requirements?",
+    "choices": [
+      "Create software snippets, reference tracking, and open source license tracking.",
+      "Run an application without provisioning or managing servers.",
+      "Enable voice commands for coding and providing natural language search.",
+      "Convert audio files to text documents by using ML models."
+    ],
+    "multiple": false,
+    "correctAnswer": ["A"],
+    "explanations": [
+      "Amazon Q Developer is designed to assist software developers by generating code snippets, providing reference tracking, and helping with open source license tracking. These capabilities directly support increased productivity in software development workflows.",
+      "Running applications without managing servers describes AWS Lambda or similar serverless services, not Amazon Q Developer.",
+      "While Amazon Q can process natural language queries, enabling voice commands is not a primary feature of Amazon Q Developer.",
+      "Converting audio files to text is a transcription task typically handled by Amazon Transcribe, not Amazon Q Developer."
+    ]
   }
 ]
