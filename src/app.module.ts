@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionModule } from './question/question.module';
+import { ExamModule } from './exam/exam.module';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,6 +16,7 @@ if (!mongoUri) {
   imports: [
     MongooseModule.forRoot(mongoUri), // 已确保 mongoUri 为 string
     QuestionModule,
+    ExamModule,
   ],
 })
 export class AppModule {}
