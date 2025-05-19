@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Param,
   Body,
   ParseIntPipe,
@@ -18,26 +19,22 @@ import { GetUser } from '../auth/get-user.decorator';
 export class ExamController {
   constructor(private readonly es: ExamService) {}
 
-  /** 创建考试会话（仅登录用户可调用） */
   @Post()
   async createExam(
     @GetUser('userId') userId: string,
   ): Promise<{ examId: string; total: number }> {
-    // 这里可以把 userId 传给 service 用于记录或权限检查
-    return this.es.createExam();
+    return this.es.createExam(userId);
   }
 
-  /** 获取考试中的单题，不返回正确答案 */
   @Get(':examId/questions/:index')
   async getExamQuestion(
     @GetUser('userId') userId: string,
     @Param('examId') examId: string,
     @Param('index', ParseIntPipe) index: number,
   ): Promise<any> {
-    return this.es.getExamQuestion(examId, index);
+    return this.es.getExamQuestion(userId, examId, index);
   }
 
-  /** 提交答案，记录结果但不返回内容 */
   @Post(':examId/questions/:index/answer')
   @HttpCode(204)
   async submitAnswer(
@@ -46,15 +43,20 @@ export class ExamController {
     @Param('index', ParseIntPipe) index: number,
     @Body() dto: SubmitAnswerDto,
   ): Promise<void> {
-    await this.es.submitAnswer(examId, index, dto.selected);
+    await this.es.submitAnswer(userId, examId, index, dto.selected);
   }
 
-  /** 获取考试结果，包括正确率和每题情况 */
   @Get(':examId/result')
   async getExamResult(
     @GetUser('userId') userId: string,
     @Param('examId') examId: string,
   ): Promise<any> {
-    return this.es.getExamResult(examId);
+    return this.es.getExamResult(userId, examId);
+  }
+
+  @Delete()
+  @HttpCode(204)
+  async clearUserExams(@GetUser('userId') userId: string): Promise<void> {
+    await this.es.clearAll(userId);
   }
 }

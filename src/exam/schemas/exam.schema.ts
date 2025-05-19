@@ -5,6 +5,10 @@ export type ExamDocument = Exam & Document;
 
 @Schema({ timestamps: true })
 export class Exam {
+  // 关联到具体用户，存储 Cognito sub（字符串）
+  @Prop({ required: true })
+  user: string;
+
   @Prop({ required: true, type: [Types.ObjectId], ref: 'Question' })
   questionIds: Types.ObjectId[];
 
@@ -18,6 +22,7 @@ export class Exam {
         index: Number,
       },
     ],
+    default: [],
   })
   answers: Array<{
     questionId: Types.ObjectId;
