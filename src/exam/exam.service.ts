@@ -6,13 +6,13 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Exam, ExamDocument } from './schemas/exam.schema';
-import { QuestionDocument } from '../question/schemas/question.schema';
+import { Question, QuestionDocument } from '../core/schemas/question.schema';
 
 @Injectable()
 export class ExamService {
   constructor(
     @InjectModel(Exam.name) private examModel: Model<ExamDocument>,
-    @InjectModel('Question') private questionModel: Model<QuestionDocument>,
+    @InjectModel(Question.name) private questionModel: Model<QuestionDocument>,
   ) {}
 
   /** 创建考试会话，关联到 userId */
@@ -63,19 +63,6 @@ export class ExamService {
     const examId = (exam._id as Types.ObjectId).toHexString();
     return { examId, total: sampledIds.length };
   }
-  // async createExam(userId: string): Promise<{ examId: string; total: number }> {
-  //   const samples = await this.questionModel.aggregate<{ _id: Types.ObjectId }>(
-  //     [{ $sample: { size: 65 } }, { $project: { _id: 1 } }],
-  //   );
-  //   const questionIds = samples.map((s) => s._id);
-  //   const exam = await this.examModel.create({
-  //     user: userId,
-  //     questionIds,
-  //     answers: [],
-  //   });
-  //   const examId = (exam._id as Types.ObjectId).toHexString();
-  //   return { examId, total: questionIds.length };
-  // }
 
   /** 获取考试中的单题，检查 userId 拥有权 */
   async getExamQuestion(
@@ -115,10 +102,23 @@ export class ExamService {
     const qId = exam.questionIds[index];
     const question = await this.questionModel.findById(qId).exec();
     if (!question) throw new NotFoundException('题目不存在');
-    const correct = question.multiple
-      ? selected.slice().sort().join(',') ===
-        question.correctAnswer.slice().sort().join(',')
-      : selected[0] === question.correctAnswer[0];
+    // const correct = practice.multiple
+    //   ? selected.slice().sort().join(',') ===
+    //     practice.correctAnswer.slice().sort().join(',')
+    //   : selected[0] === practice.correctAnswer[0];
+    let correct: boolean;
+    if (question.type === 'multiple') {
+      // 多选题：答案数组比较
+      correct =
+        (question.correctAnswer ?? []).slice().sort().join(',') ===
+        selected.slice().sort().join(',');
+    } else if (question.type === 'single') {
+      // 单选题：只比第一个选项
+      correct = selected[0] === (question.correctAnswer ?? [])[0];
+    } else {
+      // Todo: 如果是排序题，或者其它新题型，这里先标记为 false，后续可以针对 practice.correctOrder 再写新的校验逻辑
+      correct = false;
+    }
     // 更新错题计数
     if (!correct) {
       await this.questionModel

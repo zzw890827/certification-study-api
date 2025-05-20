@@ -8,17 +8,20 @@ export class Question {
   @Prop({ required: true })
   text: string;
 
-  @Prop({ required: true, type: [String] })
-  choices: string[];
-
-  @Prop({ required: true })
-  multiple: boolean;
+  @Prop({ required: true, enum: ['single', 'multiple', 'order'] })
+  type: 'single' | 'multiple' | 'order';
 
   @Prop({ required: true, type: [String] })
-  correctAnswer: string[];
+  options: string[];
 
-  @Prop({ required: true, type: [String] })
-  explanations: string[];
+  @Prop({ type: [String] })
+  correctAnswer?: string[];
+
+  @Prop({ type: [Number] })
+  correctOrder?: number[];
+
+  @Prop({ type: [String] })
+  explanations?: string[];
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);

@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
-import { QuestionService } from '../src/question/question.service';
-import { Question } from '../src/question/schemas/question.schema';
+import { CoreService } from '../src/core/core.service';
+import { Question } from '../src/practice/schemas/question.schema';
 import * as fs from 'fs';
 import * as path from 'path';
 
 async function bootstrap() {
   // 初始化 Nest 上下文
   const appContext = await NestFactory.createApplicationContext(AppModule);
-  const questionService = appContext.get(QuestionService);
+  const coreService = appContext.get(CoreService);
 
   // 读取并解析 JSON 文件
   const file = path.resolve(__dirname, './questions.json');
@@ -24,10 +24,9 @@ async function bootstrap() {
   const docs = parsed as Partial<Question>[];
 
   // 清空旧数据并插入
-  await questionService.clearAll();
-  const result = await questionService.insertMany(docs);
-  console.log(`Seed 完成：共插入 ${result.length} 条题目`);
-
+  await coreService.seedQuestions(docs);
+  const length = await coreService.count();
+  console.log(`数据插入完成，共插入${length}条数据`);
   await appContext.close();
 }
 
