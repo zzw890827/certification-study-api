@@ -17,18 +17,65 @@ export class ExamService {
 
   /** 创建考试会话，关联到 userId */
   async createExam(userId: string): Promise<{ examId: string; total: number }> {
-    const samples = await this.questionModel.aggregate<{ _id: Types.ObjectId }>(
-      [{ $sample: { size: 65 } }, { $project: { _id: 1 } }],
-    );
-    const questionIds = samples.map((s) => s._id);
+    // 加权抽题：错误次数越多，抽中概率越大
+    // 1. 读取所有题目的 _id 与 wrongCount
+    const questions = await this.questionModel
+      .find()
+      .select('_id wrongCount')
+      .lean<{ _id: Types.ObjectId; wrongCount?: number }[]>()
+      .exec();
+    if (!questions.length) throw new NotFoundException('题库中没有题目');
+    // 2. 构建加权数组，每个题目根据 wrongCount+1 重复对应次数
+    const pool: Types.ObjectId[] = [];
+    for (const q of questions) {
+      const weight = (q.wrongCount ?? 0) + 1;
+      for (let i = 0; i < weight; i++) {
+        pool.push(q._id);
+      }
+    }
+    // 3. 随机从 pool 中抽取不重复的题目
+    const selected = new Set<string>();
+    const sampledIds: Types.ObjectId[] = [];
+    while (sampledIds.length < 65 && pool.length > 0) {
+      const idx = Math.floor(Math.random() * pool.length);
+      const qid = pool[idx].toHexString();
+      if (!selected.has(qid)) {
+        selected.add(qid);
+        sampledIds.push(new Types.ObjectId(qid));
+      }
+    }
+    // 若不足65题，则补全随机无权重题
+    if (sampledIds.length < 65) {
+      const remaining = questions
+        .map((q) => q._id)
+        .filter((id) => !sampledIds.find((s) => s.equals(id)));
+      while (sampledIds.length < 65 && remaining.length > 0) {
+        const i = Math.floor(Math.random() * remaining.length);
+        sampledIds.push(remaining.splice(i, 1)[0]);
+      }
+    }
+    // 4. 创建考试会话
     const exam = await this.examModel.create({
       user: userId,
-      questionIds,
+      questionIds: sampledIds,
       answers: [],
     });
     const examId = (exam._id as Types.ObjectId).toHexString();
-    return { examId, total: questionIds.length };
+    return { examId, total: sampledIds.length };
   }
+  // async createExam(userId: string): Promise<{ examId: string; total: number }> {
+  //   const samples = await this.questionModel.aggregate<{ _id: Types.ObjectId }>(
+  //     [{ $sample: { size: 65 } }, { $project: { _id: 1 } }],
+  //   );
+  //   const questionIds = samples.map((s) => s._id);
+  //   const exam = await this.examModel.create({
+  //     user: userId,
+  //     questionIds,
+  //     answers: [],
+  //   });
+  //   const examId = (exam._id as Types.ObjectId).toHexString();
+  //   return { examId, total: questionIds.length };
+  // }
 
   /** 获取考试中的单题，检查 userId 拥有权 */
   async getExamQuestion(
