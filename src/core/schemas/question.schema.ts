@@ -21,6 +21,9 @@ export class Question {
   correctOrder?: number[];
 
   @Prop({ type: [String] })
+  questions?: string[];
+
+  @Prop({ type: [String] })
   explanations?: string[];
 }
 

@@ -2847,5 +2847,157 @@
     "correctAnswer": [
       "A"
     ]
+  },
+  {
+    "text": "A company wants to build an ML application. Select and order the correct steps from the following list to develop a well-architected ML workload. Each step should be selected one time.",
+    "explanations": [
+      "This follows the standard ML lifecycle: 1. Problem Framing – Clarify the objective. 2. Model Development – Train and validate the ML model. 3. Deployment – Push the model into production. 4. Monitoring – Observe for performance, drift, and retraining needs.",
+      "Amazon Transcribe converts speech to text and is not used for translating content.",
+      "Amazon Kendra is an enterprise search service and does not perform language translation.",
+      "Amazon Polly converts text to lifelike speech but does not translate text between languages."
+    ],
+    "type": "order",
+    "options": [
+      "Deploy model",
+      "Develop model",
+      "Monitor model",
+      "Define business goal and frame ML problem"
+    ],
+    "questions": [
+      "Step 1: ",
+      "Step 2: ",
+      "Step 3: ",
+      "Step 4: "
+    ],
+    "correctAnswer": [
+      3,
+      1,
+      0,
+      2
+    ]
+  },
+  {
+    "text": "A company has developed a large language model (LLM) and wants to make the LLM available to multiple internal teams. The company needs to select the appropriate inference mode for each team. Select the correct inference mode from the following list for each use case. Each inference mode should be selected one or more times.",
+    "explanations": [
+      "Real-time inference is used for low-latency, on-demand predictions like chatbots or APIs.",
+      "Batch transform is optimized for large, asynchronous jobs (e.g., processing many files or records at once without real-time requirements)."
+    ],
+    "type": "order",
+    "options": [
+      "Batch transform",
+      "Real-time inference"
+    ],
+    "questions": [
+      "The company's chatbot needs predictions from the LLM to understand users' intent with minimal latency.",
+      "A data processing job needs to query the LLM to process gigabytes of text files on weekends",
+      "The company's engineering team needs to create an API that can process small pieces of text content and provide low-latency predictions."
+    ],
+    "correctAnswer": [
+      1,
+      0,
+      1
+    ]
+  },
+  {
+    "text": "A company wants to develop ML applications to improve business operations and efficiency. Select the correct ML paradigm from the following list for each use case. Each ML paradigm should be selected one or more times.",
+    "explanations": [
+      "Binary classification → Supervised learning: Because the model is trained on labeled data with two classes, e.g., spam vs. not spam.",
+      "Multi-class classification → Supervised learning: The model predicts one of several labeled classes, e.g., classifying emails into categories like promotions, social, primary.",
+      "K-means clustering → Unsupervised learning: This algorithm finds patterns or groupings in unlabeled data.",
+      "Dimensionality reduction → Unsupervised learning: Used to reduce feature space without needing labeled outputs, e.g., PCA."
+    ],
+    "type": "order",
+    "options": [
+      "Supervised learning",
+      "Unsupervised learning"
+    ],
+    "questions": [
+      "Binary classification",
+      "Multi-class classification",
+      "K-means clustering",
+      "Dimensionality reduction"
+    ],
+    "correctAnswer": [
+      0,
+      0,
+      1,
+      1
+    ]
+  },
+  {
+    "text": "A company wants to develop ML applications to improve business operations and efficiency. Select the correct ML paradigm from the following list for each use case. Each ML paradigm should be selected one or more times.",
+    "explanations": [
+      "Classify the following text as either sports, politics, or entertainment: [input text]. → Zero-shot learning: No prior examples given, just a direct instruction with categories.",
+      "A [image 1], [image 2], and [image 3] are examples of [target class]. Classify the following image as [target class]. → Few-shot learning: The prompt provides examples before asking for a new classification.",
+      "[Question.] [Instructions to follow.] Think step by step and walk me through your thinking. → Chain-of-thought reasoning: Explicitly asks the model to reason step-by-step."
+    ],
+    "type": "order",
+    "options": [
+      "Chain-of-thought reasoning",
+      "Few-shot learning",
+      "Zero-shot learning"
+    ],
+    "questions": [
+      "Classify the following text as either sports, politics, or entertainment: [input text]",
+      "A [image 1], [image 2], and [image 3] are examples of [target class]. Classify the following image as [target class].",
+      "[Question.] [Instructions to follow.] Think step by step and walk me through your thinking."
+    ],
+    "correctAnswer": [
+      2,
+      1,
+      0
+    ]
+  },
+  {
+    "text": "A company is using a generative AI model to develop a digital assistant. The model’s responses occasionally include undesirable and potentially harmful content. Select the correct Amazon Bedrock filter policy from the following list for each mitigation action. Each filter policy should be selected one time.",
+    "explanations": [
+      "Block input prompts or model responses that contain harmful content such as hate, insults, violence, or misconduct → Content filters: These are designed to detect and prevent toxic or harmful content.",
+      "Avoid subjects related to illegal investment advice or legal advice → Denied topics: You can explicitly list topics (like financial/legal advice) to be blocked from model responses.",
+      "Detect and block specific offensive terms → Word filters: Allows you to block based on a custom list of keywords or offensive terms.",
+      "Detect and filter out information in the model's responses that is not grounded in the provided source information → Contextual grounding check: This ensures that the model’s outputs remain aligned with trusted input data (important for hallucination prevention)."
+    ],
+    "type": "order",
+    "options": [
+      "Content filters",
+      "Contextual grounding check",
+      "Denied topics",
+      "Word filters"
+    ],
+    "questions": [
+      "Block input prompts or model responses that contain harmful content such as hate, insults, violence, or misconduct",
+      "Avoid subjects related to illegal investment advice or legal advice",
+      "Detect and block specific offensive terms",
+      "Contextual grounding check"
+    ],
+    "correctAnswer": [
+      0,
+      2,
+      3,
+      1
+    ]
+  },
+  {
+    "text": "A company wants more customized responses to its generative AI models’ prompts. Select the correct customization methodology from the following list for each use case. Each use case should be selected one time.",
+    "explanations": [
+      "The models must be taught a new domain-specific task → Model fine-tuning: Model fine-tuning is ideal for adapting a model to specific tasks or domains using labeled data.",
+      "A limited amount of labeled data is available and more data is needed → Data augmentation: Data augmentation generates synthetic data to expand the dataset and improve model generalization.",
+      "Only unlabeled data is available → Continued pre-training: Continued pre-training leverages large-scale unlabeled data to adapt the base model further before fine-tuning."
+    ],
+    "type": "order",
+    "options": [
+      "Continued pre-training",
+      "Data augmentation",
+      "Model fine-tuning"
+    ],
+    "questions": [
+      "The models must be taught a new domain-specific task",
+      "A limited amount of labeled data is available and more data is needed",
+      "Only unlabeled data is available"
+    ],
+    "correctAnswer": [
+      2,
+      1,
+      0
+    ]
   }
 ]
