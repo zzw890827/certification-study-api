@@ -6,7 +6,7 @@ import { Question } from '../core/schemas/question.schema';
 export class PracticeController {
   constructor(private readonly ps: PracticeService) {}
 
-  @Get('count')
+  @Get('/questions/count')
   async getCount(): Promise<{ count: number }> {
     return { count: await this.ps.count() };
   }

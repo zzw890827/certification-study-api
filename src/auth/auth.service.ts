@@ -1,19 +1,27 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   CognitoIdentityProviderClient,
   SignUpCommand,
   InitiateAuthCommand,
+  ConfirmSignUpCommand,
   AuthFlowType,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ConfirmEmailDto } from './dto/confirm-email.dto';
 
 @Injectable()
 export class AuthService {
   private cognitoClient: CognitoIdentityProviderClient;
   private userPoolId: string;
   private clientId: string;
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(private configService: ConfigService) {
     // 初始化 Cognito 客户端，支持本地 LocalStack 模拟
@@ -46,6 +54,26 @@ export class AuthService {
       UserAttributes: [{ Name: 'email', Value: dto.email }],
     });
     await this.cognitoClient.send(command);
+  }
+
+  async confirmEmail(dto: ConfirmEmailDto): Promise<void> {
+    const { username, code } = dto;
+    const command = new ConfirmSignUpCommand({
+      ClientId: this.clientId,
+      Username: username,
+      ConfirmationCode: code,
+    });
+    try {
+      await this.cognitoClient.send(command);
+    } catch (err: unknown) {
+      this.logger.error(
+        'ConfirmSignUp error',
+        err instanceof Error ? err : String(err),
+      );
+      const message =
+        err instanceof Error ? err.message : 'Email confirmation failed';
+      throw new BadRequestException(message);
+    }
   }
 
   /** 用户登录，返回 Cognito JWT */

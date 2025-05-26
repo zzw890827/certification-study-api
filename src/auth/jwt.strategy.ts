@@ -1,74 +1,74 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
+import { Strategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import { JwksClient } from 'jwks-rsa';
 import { ConfigService } from '@nestjs/config';
 
 export interface JwtPayload {
   sub: string;
   username: string;
+  iss: string;
+  aud: string | string[];
+  exp: number;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
 
-  constructor(config: ConfigService) {
-    const region = config.get<string>('AWS_REGION');
-    const poolId = config.get<string>('COGNITO_USER_POOL_ID');
-    const endpoint =
-      config.get<string>('COGNITO_ENDPOINT') ||
-      `https://cognito-idp.${region}.amazonaws.com`;
-    const jwksUri = `${endpoint}/${poolId}/.well-known/jwks.json`;
+  constructor(private readonly config: ConfigService) {
+    // 从环境变量读取 Cognito 配置
+    const region = config.get<string>('AWS_REGION')!;
+    const userPoolId = config.get<string>('COGNITO_USER_POOL_ID')!;
+    const endpoint = `https://cognito-idp.${region}.amazonaws.com`;
+
+    // JWKS URL
+    const jwksUri = `${endpoint}/${userPoolId}/.well-known/jwks.json`;
     const jwksClient = new JwksClient({ jwksUri });
 
     const opts: StrategyOptions = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKeyProvider: (req, rawToken, done) => {
-        this.logger.debug(`Raw token received: ${rawToken}`);
+      // 动态从 JWKS 拉公钥
+      secretOrKeyProvider: (req, token, done) => {
+        this.logger.debug(`Cognito token received: ${token}`);
         try {
-          const token = rawToken as string;
-          const [encodedHeader] = token.split('.');
-          const headerJson = Buffer.from(encodedHeader, 'base64').toString(
-            'utf8',
-          );
-          this.logger.debug(`Decoded JWT header: ${headerJson}`);
+          const [h] = (token as string).split('.');
+          const headerJson = Buffer.from(h, 'base64').toString('utf8');
           const header = JSON.parse(headerJson) as { kid: string };
           if (!header.kid) {
             this.logger.error('JWT header missing kid');
-            return done(new Error('JWT header missing kid'));
+            // 错误时第二个参数传 undefined 而非 null
+            return done(new Error('JWT header missing kid'), undefined);
           }
-          this.logger.debug(`JWT kid: ${header.kid}`);
           jwksClient.getSigningKey(header.kid, (err, key) => {
             if (err || !key) {
               this.logger.error('Error fetching signing key', err);
-              return done(err || new Error('Signing key not found'));
+              return done(err || new Error('Signing key not found'), undefined);
             }
-            const publicKey = key.getPublicKey();
-            this.logger.debug('Successfully retrieved public key');
-            done(null, publicKey);
+            const pub = key.getPublicKey();
+            this.logger.debug('Retrieved public key from JWKS');
+            done(null, pub);
           });
         } catch (e) {
           this.logger.error('Exception in secretOrKeyProvider', e as Error);
-          done(e as Error);
+          done(e as Error, undefined);
         }
       },
-      // issuer: `${endpoint}/${poolId}`,
-      // audience: config.get<string>('COGNITO_CLIENT_ID'),
+      // 可选：如果希望校验 iss/aud，按生产地址配置
+      // issuer:   `${endpoint}/${userPoolId}`,
+      // audience: clientId,
     };
+
     super(opts);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    this.logger.log(`Initialized JwtStrategy with issuer ${opts.issuer}`);
+    this.logger.log(`JwtStrategy initialized (JWKS: ${jwksUri})`);
   }
 
   validate(payload: JwtPayload): { userId: string; username: string } {
-    this.logger.debug(`Validated payload: ${JSON.stringify(payload)}`);
-    const { sub, username } = payload;
-    if (!sub) {
-      this.logger.error('Token payload missing sub');
-      throw new UnauthorizedException('Token payload missing sub');
+    this.logger.debug(`Token payload validated: ${JSON.stringify(payload)}`);
+    if (!payload.sub) {
+      throw new UnauthorizedException('Token missing sub');
     }
-    return { userId: sub, username };
+    return { userId: payload.sub, username: payload.username };
   }
 }

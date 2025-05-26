@@ -15,6 +15,14 @@ export class ExamService {
     @InjectModel(Question.name) private questionModel: Model<QuestionDocument>,
   ) {}
 
+  private arraysEqual<T>(a: T[], b: T[]): boolean {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+
   /** 创建考试会话，关联到 userId */
   async createExam(userId: string): Promise<{ examId: string; total: number }> {
     // 加权抽题：错误次数越多，抽中概率越大
@@ -102,23 +110,26 @@ export class ExamService {
     const qId = exam.questionIds[index];
     const question = await this.questionModel.findById(qId).exec();
     if (!question) throw new NotFoundException('题目不存在');
-    // const correct = practice.multiple
-    //   ? selected.slice().sort().join(',') ===
-    //     practice.correctAnswer.slice().sort().join(',')
-    //   : selected[0] === practice.correctAnswer[0];
     let correct: boolean;
-    if (question.type === 'multiple') {
-      // 多选题：答案数组比较
-      correct =
-        (question.correctAnswer ?? []).slice().sort().join(',') ===
-        selected.slice().sort().join(',');
-    } else if (question.type === 'single') {
-      // 单选题：只比第一个选项
-      correct = selected[0] === (question.correctAnswer ?? [])[0];
-    } else {
-      // Todo: 如果是排序题，或者其它新题型，这里先标记为 false，后续可以针对 practice.correctOrder 再写新的校验逻辑
-      correct = false;
+
+    switch (question.type) {
+      case 'single':
+        correct = selected[0] === (question.correctAnswer ?? [])[0];
+        break;
+
+      case 'multiple':
+        correct =
+          (question.correctAnswer ?? []).slice().sort().join(',') ===
+          selected.slice().sort().join(',');
+        break;
+
+      case 'order':
+        correct = this.arraysEqual(
+          selected.map((s) => Number(s)),
+          question.correctOrder ?? [],
+        );
     }
+
     // 更新错题计数
     if (!correct) {
       await this.questionModel
