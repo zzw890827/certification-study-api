@@ -10,6 +10,9 @@ export class User {
 
   @Prop({ required: true })
   password: string; // hashed
+
+  @Prop({ type: Date, default: null })
+  tokenInvalidBefore: Date | null;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

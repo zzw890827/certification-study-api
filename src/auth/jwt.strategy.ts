@@ -3,6 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import { JwksClient } from 'jwks-rsa';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from './schemas/user.schema';
+import { Model } from 'mongoose';
 
 export interface JwtPayload {
   sub: string;
@@ -10,15 +13,20 @@ export interface JwtPayload {
   iss: string;
   aud: string | string[];
   exp: number;
+  iat?: number;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  ) {
     // 从环境变量读取 Cognito 配置
     const region = config.get<string>('AWS_REGION')!;
+    const clientId = config.get<string>('AWS_CLIENT_ID')!;
     const userPoolId = config.get<string>('COGNITO_USER_POOL_ID')!;
     const endpoint = `https://cognito-idp.${region}.amazonaws.com`;
 
@@ -55,20 +63,40 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           done(e as Error, undefined);
         }
       },
-      // 可选：如果希望校验 iss/aud，按生产地址配置
-      // issuer:   `${endpoint}/${userPoolId}`,
-      // audience: clientId,
+      issuer: `${endpoint}/${userPoolId}`,
+      audience: clientId,
     };
 
     super(opts);
     this.logger.log(`JwtStrategy initialized (JWKS: ${jwksUri})`);
   }
 
-  validate(payload: JwtPayload): { userId: string; username: string } {
+  async validate(
+    payload: JwtPayload,
+  ): Promise<{ userId: string; username: string }> {
+    this.logger.debug(
+      `Validating token for ${payload.sub}. Payload iat=${payload.iat}`,
+    );
     this.logger.debug(`Token payload validated: ${JSON.stringify(payload)}`);
     if (!payload.sub) {
       throw new UnauthorizedException('Token missing sub');
     }
+    const user = await this.userModel
+      .findOne({ username: payload.username })
+      .exec();
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    this.logger.debug(
+      `User.tokenInvalidBefore = ${user.tokenInvalidBefore?.toISOString()}`,
+    );
+    if (user.tokenInvalidBefore && payload.iat) {
+      const issuedMs = payload.iat * 1000;
+      if (issuedMs < user.tokenInvalidBefore.getTime()) {
+        throw new UnauthorizedException('Token has been invalidated');
+      }
+    }
+
     return { userId: payload.sub, username: payload.username };
   }
 }

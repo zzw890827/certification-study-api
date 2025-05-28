@@ -1,8 +1,17 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  UseGuards,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfirmEmailDto } from './dto/confirm-email.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,5 +32,16 @@ export class AuthController {
   @HttpCode(200)
   async login(@Body() dto: LoginDto): Promise<{ access_token: string }> {
     return this.authService.login(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Req() req: Request): Promise<void> {
+    const authHeader = req.headers['authorization'] as string | undefined;
+    if (!authHeader || Array.isArray(authHeader)) {
+      throw new BadRequestException('Missing Authorization header');
+    }
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    await this.authService.logout(token);
   }
 }
