@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/ubuntu/app
+cd /home/ubuntu/app || return
 npm install
 npm run build
 pm2 stop focusup-app || true

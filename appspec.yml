@@ -5,6 +5,9 @@ files:
     destination:  /home/ubuntu/app
 hooks:
   AfterInstall:
-    - location: scripts/restart_pm2.sh
-      timeout: 300
+    - location: scripts/chown_app.sh
+      runas: root
+
+  ApplicationStart:
+    - location: scripts/start_pm2.sh
       runas: ubuntu
