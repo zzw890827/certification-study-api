@@ -1,8 +1,10 @@
 #!/bin/bash
+set -e
 
+APP_DIR="/home/ubuntu/app"
 APP_NAME="focus-up-app"
 
-cd /home/ubuntu/app || return
+cd "$APP_DIR" || return
 npm install
 echo "使用 PM2 启动 NestJS 应用：npm run start:prod"
 pm2 start npm --name "$APP_NAME" -- run start:prod
