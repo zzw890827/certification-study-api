@@ -4,7 +4,15 @@ files:
   - source:  /
     destination:  /home/ubuntu/app
 hooks:
+  ApplicationStop:
+    - location: scripts/stop_app.sh
+      runas: ubuntu
+
   AfterInstall:
     - location: scripts/chown_app.sh
       timeout: 300
       runas: root
+
+  ApplicationStart:
+    - location: scripts/start_app.sh
+      runas: ubuntu
